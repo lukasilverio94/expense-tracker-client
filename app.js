@@ -8,26 +8,9 @@ const totalSumExpense = document.getElementById("total-expense");
 // load and display expenses
 async function loadExpenses() {
   try {
-    expensesTable.innerHTML = ""; // clear existing rows
     const res = await fetch(`${API_BASE_URL}/expenses?_expand=category`);
     const expenses = await res.json();
-
-    expenses.forEach((exp) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td class="p-2">${exp.description}</td>
-        <td class="p-2">${exp.value.toFixed(2)}</td>
-        <td class="p-2">${exp.createdAt}</td>
-        <td class="p-2">${exp.category?.name || "Uncategorized"}</td>
-        <td class="p-2">
-          <button class="text-red-600 hover:underline delete-btn" data-id="${
-            exp.id
-          }">Delete
-        </button>
-        </td>  
-        `;
-      expensesTable.appendChild(row);
-    });
+    renderExpensesTable(expenses);
   } catch (error) {
     console.error("Failed to load expenses: " + error);
   }
@@ -88,6 +71,51 @@ expensesTable.addEventListener("click", async (e) => {
       }
     }
   }
+});
+
+// filtering expenses by description
+async function loadFilteredExpenses() {
+  const description = document.getElementById("filterDescription").value;
+  let url = `${API_BASE_URL}/expenses`;
+
+  if (description.trim()) {
+    const encoded = encodeURIComponent(description);
+    url += `?description=${encoded}`;
+  }
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Failed to fetch expenses");
+
+    const expenses = await response.json();
+    renderExpensesTable(expenses);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// render expenses list
+function renderExpensesTable(expenses) {
+  expensesTable.innerHTML = "";
+
+  expenses.forEach((exp) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td class="p-2">${exp.description}</td>
+      <td class="p-2">${exp.value.toFixed(2)}</td>
+      <td class="p-2">${exp.createdAt}</td>
+      <td class="p-2">${exp.category?.name || "Uncategorized"}</td>
+      <td class="p-2">
+        <button class="text-red-600 hover:underline delete-btn" data-id="${
+          exp.id
+        }">Delete</button>
+      </td>`;
+    expensesTable.appendChild(row);
+  });
+}
+
+document.getElementById("filterDescription").addEventListener("input", () => {
+  loadFilteredExpenses();
 });
 
 // when browser loads
