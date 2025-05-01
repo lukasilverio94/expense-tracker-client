@@ -1,0 +1,77 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Expense Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script type="module" defer src="app.js"></script>
+  </head>
+  <body class="bg-gray-100 font-sans">
+    <nav class="bg-indigo-600 text-white p-4 text-center text-xl font-bold">
+      Expense Tracker
+    </nav>
+
+    <main class="max-w-4xl mx-auto mt-6 p-4 bg-white rounded shadow">
+      <section id="expense-form-section" class="mb-8">
+        <h2 class="text-2xl font-semibold mb-4">Add Expense</h2>
+        <form id="expense-form" class="grid gap-4 md:grid-cols-2">
+          <input
+            type="text"
+            id="description"
+            placeholder="Description"
+            required
+            class="p-2 border rounded w-full"
+          />
+          <input
+            type="number"
+            id="value"
+            step="0.01"
+            placeholder="Value $$"
+            required
+            class="p-2 border rounded w-full"
+          />
+          <input
+            type="date"
+            id="createdAt"
+            required
+            class="p-2 border rounded w-full"
+          />
+          <select id="category" required class="p-2 border rounded w-full">
+            <option value="">Select Category</option>
+          </select>
+          <button
+            type="submit"
+            class="bg-indigo-600 text-white p-2 rounded hover:bg-indigo-700 w-full md:col-span-2"
+          >
+            Add Expense
+          </button>
+        </form>
+      </section>
+
+      <section id="expenses-list-section">
+        <h2 class="text-2xl font-semibold mb-4">Expenses</h2>
+
+        <!-- total expenses -->
+        <div
+          id="total-expense"
+          class="text-xl font-bold text-right mb-4 text-indigo-500"
+        >
+          Total: €0.00
+        </div>
+        <!-- end total expenses -->
+        <table class="w-full border-collapse">
+          <thead>
+            <tr class="bg-gray-200 text-left">
+              <th class="p-2">Title</th>
+              <th class="p-2">Amount</th>
+              <th class="p-2">Date</th>
+              <th class="p-2">Category</th>
+              <th class="p-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="expenses-table-body"></tbody>
+        </table>
+      </section>
+    </main>
+  </body>
+</html>
