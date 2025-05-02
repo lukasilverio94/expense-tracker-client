@@ -4,6 +4,9 @@ import { API_BASE_URL } from "./config.js";
 const expenseForm = document.getElementById("expense-form");
 const expensesTable = document.getElementById("expenses-table-body");
 const totalSumExpense = document.getElementById("total-expense");
+const deleteModal = document.getElementById("delete-modal");
+const confirmDeleteBtn = document.getElementById("confirm-delete");
+const cancelDeleteBtn = document.getElementById("cancel-delete");
 
 // load and display expenses
 async function loadExpenses() {
@@ -22,7 +25,7 @@ async function loadSumTotalExpenses() {
     const response = await fetch(`${API_BASE_URL}/expenses/total`);
     if (!response.ok) throw new Error("Failed to fetch total expenses value");
     const data = await response.json();
-    totalSumExpense.textContent = `Total: $${data.totalExpenses.toFixed(2)}`;
+    totalSumExpense.textContent = `Total: €${data.totalExpenses.toFixed(2)}`;
   } catch (error) {
     console.error(error);
     totalSumExpense.textContent = "Total: Error";
@@ -50,26 +53,6 @@ expenseForm.addEventListener("submit", async (e) => {
     await loadSumTotalExpenses();
   } else {
     throw new Error("Failed to add expense");
-  }
-});
-
-// handle delete button clicks using event delegation
-expensesTable.addEventListener("click", async (e) => {
-  if (e.target.classList.contains("delete-btn")) {
-    const id = e.target.getAttribute("data-id");
-    if (confirm("Are you sure you want to delete this expense?")) {
-      try {
-        const response = await fetch(`${API_BASE_URL}/expenses/${id}`, {
-          method: "DELETE",
-        });
-        if (!response.ok) throw new Error("Failed to delete expense");
-
-        await loadExpenses();
-        await loadSumTotalExpenses();
-      } catch (err) {
-        console.error("Error deleting expense:", err);
-      }
-    }
   }
 });
 
@@ -114,6 +97,52 @@ function renderExpensesTable(expenses) {
   });
 }
 
+// delete with modal
+let expenseIdToDelete = null;
+
+function openDeleteModal(id) {
+  expenseIdToDelete = id;
+  deleteModal.classList.remove("hidden");
+}
+
+function closeDeleteModal() {
+  expenseIdToDelete = null;
+  deleteModal.classList.add("hidden");
+}
+
+cancelDeleteBtn.addEventListener("click", closeDeleteModal);
+
+confirmDeleteBtn.addEventListener("click", async () => {
+  if (!expenseIdToDelete) return;
+
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/expenses/${expenseIdToDelete}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    if (!response.ok) throw new Error("Failed to delete expense");
+
+    await loadExpenses();
+    await loadSumTotalExpenses();
+  } catch (err) {
+    console.error("Error deleting expense:", err);
+  } finally {
+    closeDeleteModal();
+  }
+});
+
+// handle delete button clicks using event delegation
+expensesTable.addEventListener("click", (e) => {
+  if (e.target.classList.contains("delete-btn")) {
+    const id = e.target.getAttribute("data-id");
+    openDeleteModal(id);
+  }
+});
+
+// filter expense by description event
 document.getElementById("filterDescription").addEventListener("input", () => {
   loadFilteredExpenses();
 });
